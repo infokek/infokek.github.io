@@ -5,6 +5,9 @@ order: 4
 ---
 
 **Name:** Sergey Komarov
+
+**Company:** Positive Technologies
+
 - Malware Analyst
 - Network Traffic Analyst
-- Information Security Enthusiast
+- Mobile Security Enthusiast
